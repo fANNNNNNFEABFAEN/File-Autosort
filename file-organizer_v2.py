@@ -1,0 +1,112 @@
+import os
+import shutil
+import tkinter as tk
+from tkinter import filedialog, messagebox, ttk
+import datetime
+
+def organize_files():
+    try:
+        
+        source_folder = filedialog.askdirectory(title="Select Source Folder")
+        if not source_folder:
+            return
+        
+        
+        destination_folder = filedialog.askdirectory(title="Select Destination Folder")
+        if not destination_folder:
+            return
+        
+        
+        if source_folder == destination_folder:
+            messagebox.showwarning("Warning", "Source and destination folders cannot be the same.")
+            return
+
+        files = [f for f in os.listdir(source_folder) if os.path.isfile(os.path.join(source_folder, f))]
+        total_files = len(files)
+        
+        if total_files == 0:
+            
+            messagebox.showinfo("Info", "No files to move.")
+            return
+        
+        
+        progress_bar['value'] = 0
+        progress_bar['maximum'] = total_files
+        root.update_idletasks()
+
+        log_entries = []
+        count_success = 0
+        count_failed = 0
+
+        for idx, filename in enumerate(files, start=1):
+            try:
+                file_path = os.path.join(source_folder, filename)
+                
+                file_name_only, ext_with_dot = os.path.splitext(filename)
+                
+                if not ext_with_dot:
+                    
+                    ext = "(No Extension)"
+                else:
+                    ext = ext_with_dot[1:].lower() 
+                
+                target_dir = os.path.join(destination_folder, ext)
+                os.makedirs(target_dir, exist_ok=True)
+                
+                target_file_path = os.path.join(target_dir, filename)
+                
+                count = 1
+                while os.path.exists(target_file_path):
+                    new_filename = f"{file_name_only} ({count}){ext_with_dot}"
+                    target_file_path = os.path.join(target_dir, new_filename)
+                    count += 1
+                
+                shutil.move(file_path, target_file_path)
+                
+                final_filename = os.path.basename(target_file_path)
+                log_entries.append(f"[OK] {filename} → {target_dir}{os.sep}{final_filename}")
+                count_success += 1
+                
+            except Exception as e:
+                log_entries.append(f"[FAIL] {filename} ({e})")
+                count_failed += 1
+            
+            progress_bar['value'] = idx
+            root.update_idletasks()
+        
+        log_filename = os.path.join(destination_folder, f"organizer_log_{datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}.txt")
+        with open(log_filename, "w", encoding="utf-8") as log_file:
+            log_file.write("\n".join(log_entries))
+        
+        
+        messagebox.showinfo("Complete ✅",
+                            f"Success: {count_success}\nFailed: {count_failed}\n\nLog saved to:\n{log_filename}")
+
+    except Exception as e:
+        
+        messagebox.showerror("Failed ❌", f"An error occurred:\n{e}")
+
+
+root = tk.Tk()
+
+root.title("Automatic File Organizer (v2)")
+root.geometry("400x250")
+root.resizable(False, False)
+
+
+label = tk.Label(root, text="Organize files by their extension 📁", font=("Segoe UI", 11))
+label.pack(pady=20)
+
+
+btn_start = tk.Button(root, text="Start Organizing", command=organize_files, bg="#4CAF50", fg="white", font=("Segoe UI", 10), width=20)
+btn_start.pack(pady=10)
+
+progress_bar = ttk.Progressbar(root, orient="horizontal", length=300, mode="determinate")
+progress_bar.pack(pady=10)
+
+
+btn_exit = tk.Button(root, text="Exit", command=root.quit, bg="#f44336", fg="white", font=("Segoe UI", 10), width=20)
+btn_exit.pack(pady=10)
+
+root.mainloop()
+          
