@@ -7,7 +7,7 @@ A lightweight **Python-based file organizer** that automatically sorts your file
 ## ✨ Features
 - 📁 Automatically organizes files by type (`.jpg`, `.mp4`, `.pdf`, `.zip`, etc.)  
 - 🧩 Creates new folders automatically when new file types are found  
-- 💻 Works on **Windows**, **Linux**, and even **Termux (Android)**  
+- 💻 Works on **Windows**, **Linux**  
 - 🪶 Simple and fast — ideal for quick cleanup  
 - 🟢 Minimal GUI that shows `Success` or `Failed` message  
 
@@ -21,7 +21,7 @@ A lightweight **Python-based file organizer** that automatically sorts your file
 
 ## 🚀 How to Run
 1. Save the script as `file_organizer.py`
-2. Open your terminal (or Termux)
+2. Open your terminal
 3. Run:
    ```bash
    python file_organizer.py
